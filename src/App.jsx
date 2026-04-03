@@ -1,17 +1,240 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Layers, Activity, GitBranch, Play, ArrowLeft, Calculator, BookOpen, 
-  ChevronRight, ArrowRight, GitMerge, Zap, Menu, X
+  ChevronRight, ArrowRight, GitMerge, Zap, Menu, X, Search, FileText, 
+  Download, Maximize2, Share2, Globe
 } from 'lucide-react';
+
 import Module1Basics from './components/viz/Module1Basics';
 import Module2Modes from './components/viz/Module2Modes';
 import Module3Active from './components/viz/Module3Active';
-import Module4Systems from './components/viz/Module4Systems'; 
-import ResourceGrid from './components/ResourceGrid';
-import PdfViewerModal from './components/PdfViewerModal';
-import SynthaceBackground from './components/SynthaceBackground';
-import EquationBank from './components/EquationBank';
-import HeroSection from './components/HeroSection';
+import Module4Systems from './components/viz/Module4Systems';
+
+// --- STYLES FOR LIQUID ANIMATIONS ---
+const liquidStyles = `
+  @keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
+  .animate-blob {
+    animation: blob 10s infinite alternate;
+  }
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+  .glass-panel {
+    background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15), inset 0 0 0 1px rgba(255,255,255,0.2);
+  }
+  .glass-panel-dark {
+    background: linear-gradient(135deg, rgba(15,23,42,0.6) 0%, rgba(15,23,42,0.2) 100%);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .liquid-text {
+    background: linear-gradient(to right, #3b82f6, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+  }
+`;
+
+// --- COMPONENTS ---
+
+const LiquidBackground = ({ isDark }) => (
+  <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0 transition-colors duration-1000 ease-in-out" style={{ backgroundColor: isDark ? '#050814' : '#eef2ff' }}>
+    <div className={`absolute top-0 -left-4 w-96 h-96 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob transition-all duration-1000 ${isDark ? 'bg-indigo-900 mix-blend-screen opacity-40' : 'bg-blue-300'}`}></div>
+    <div className={`absolute top-0 -right-4 w-96 h-96 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-2000 transition-all duration-1000 ${isDark ? 'bg-purple-900 mix-blend-screen opacity-40' : 'bg-purple-300'}`}></div>
+    <div className={`absolute -bottom-8 left-20 w-96 h-96 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-4000 transition-all duration-1000 ${isDark ? 'bg-teal-900 mix-blend-screen opacity-30' : 'bg-pink-300'}`}></div>
+    {/* Extra liquid mesh for dark mode */}
+    {isDark && (
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600 rounded-full mix-blend-screen filter blur-[150px] opacity-20 animate-blob"></div>
+    )}
+  </div>
+);
+
+const HeroSection = ({ onExplore, onOpenEqBank }) => (
+  <div className="relative pt-24 pb-16 flex flex-col items-center text-center z-10 font-sans">
+    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel mb-8 animate-fade-in-up">
+      <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
+      <span className="text-sm font-semibold text-slate-700 tracking-wide">Nexus Engine v2.4 Liquid</span>
+    </div>
+    <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter mb-6 leading-tight">
+      Photonics <br/>
+      <span className="liquid-text font-black">Reimagined.</span>
+    </h1>
+    <p className="text-lg text-slate-600 max-w-2xl font-medium mb-10 leading-relaxed px-4">
+      Dive into a fluid, interactive learning environment. Explore the depths of total internal reflection, signal physics, and active optical systems through liquid glass interfaces.
+    </p>
+    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4">
+      <button 
+        onClick={onExplore}
+        className="group relative px-8 py-4 bg-slate-900 text-white rounded-3xl font-bold tracking-wide overflow-hidden shadow-[0_10px_40px_-10px_rgba(15,23,42,0.5)] transition-transform hover:scale-105 active:scale-95"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <span className="relative flex items-center gap-2">
+          Explore Modules <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </span>
+      </button>
+      <button 
+        onClick={onOpenEqBank}
+        className="group px-8 py-4 glass-panel text-slate-800 rounded-3xl font-bold tracking-wide hover:bg-white/40 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+      >
+        <Calculator className="w-5 h-5 text-purple-500" />
+        Equation Bank
+      </button>
+    </div>
+  </div>
+);
+
+const ResourceGrid = ({ onOpenPDF }) => {
+  const resources = [
+    { id: 1, title: 'Nonlinear Fiber Optics', author: 'Agrawal, G.', type: 'PDF', size: '4.2 MB', color: 'bg-blue-500' },
+    { id: 2, title: 'Quantum Photonics Fundamentals', author: 'Smith, J.', type: 'PDF', size: '2.1 MB', color: 'bg-purple-500' },
+    { id: 3, title: 'Silicon Photonics Design', author: 'Chrostowski, L.', type: 'PDF', size: '8.4 MB', color: 'bg-pink-500' },
+    { id: 4, title: 'Optical Sensors & Systems', author: 'Udd, E.', type: 'PDF', size: '5.6 MB', color: 'bg-emerald-500' },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+      {resources.map((res) => (
+        <button 
+          key={res.id} 
+          onClick={() => onOpenPDF(res)}
+          className="glass-panel p-6 rounded-[2rem] text-left group hover:-translate-y-2 transition-all duration-500 hover:shadow-[0_20px_40px_rgba(31,38,135,0.15)] flex flex-col h-56"
+        >
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-auto ${res.color} bg-opacity-20 backdrop-blur-md border border-white/30`}>
+            <FileText className={`w-6 h-6 ${res.color.replace('bg-', 'text-')}`} />
+          </div>
+          <div>
+            <h4 className="font-bold text-slate-800 mb-1 leading-tight group-hover:text-blue-600 transition-colors">{res.title}</h4>
+            <p className="text-sm text-slate-500 font-medium mb-3">{res.author}</p>
+            <div className="flex items-center justify-between text-xs font-bold text-slate-400">
+              <span className="bg-white/40 px-3 py-1 rounded-full">{res.type}</span>
+              <span>{res.size}</span>
+            </div>
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const PdfViewerModal = ({ resource, onClose }) => {
+  if (!resource) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-300">
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose}></div>
+      <div className="glass-panel w-full max-w-5xl h-full max-h-[90vh] rounded-[2.5rem] relative flex flex-col overflow-hidden shadow-2xl border-white/50 scale-in-center">
+        {/* Modal Header */}
+        <div className="h-20 border-b border-white/20 bg-white/20 backdrop-blur-md flex items-center justify-between px-8 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <div className={`p-2 rounded-xl bg-opacity-20 ${resource.color}`}>
+               <FileText className={`w-6 h-6 ${resource.color.replace('bg-', 'text-')}`} />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-800">{resource.title}</h3>
+              <p className="text-xs font-medium text-slate-500">{resource.author} • {resource.size}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="p-2 rounded-full hover:bg-white/40 text-slate-600 transition-colors"><Download className="w-5 h-5"/></button>
+            <button className="p-2 rounded-full hover:bg-white/40 text-slate-600 transition-colors"><Maximize2 className="w-5 h-5"/></button>
+            <div className="w-px h-6 bg-slate-300/50 mx-2"></div>
+            <button onClick={onClose} className="p-2 rounded-full hover:bg-white/50 bg-white/30 text-slate-800 transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+        {/* Modal Body (Fake PDF View) */}
+        <div className="flex-1 bg-black/5 p-8 overflow-y-auto custom-scrollbar flex justify-center">
+           <div className="w-full max-w-3xl bg-white shadow-xl rounded-xl p-12 min-h-[1200px] space-y-6 opacity-90">
+              <div className="h-8 bg-slate-200 rounded w-3/4 mb-12"></div>
+              <div className="h-4 bg-slate-100 rounded w-full"></div>
+              <div className="h-4 bg-slate-100 rounded w-full"></div>
+              <div className="h-4 bg-slate-100 rounded w-5/6"></div>
+              <div className="h-64 bg-slate-50 rounded-xl my-8 border border-slate-100 flex items-center justify-center text-slate-300">Figure 1.1</div>
+              <div className="h-4 bg-slate-100 rounded w-full"></div>
+              <div className="h-4 bg-slate-100 rounded w-full"></div>
+              <div className="h-4 bg-slate-100 rounded w-4/6"></div>
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const EquationBank = ({ isOpen, onClose }) => {
+  const equations = [
+    { name: "Snell's Law", eq: "n₁ sin(θ₁) = n₂ sin(θ₂)", desc: "Describes the relationship between angles of incidence and refraction." },
+    { name: "Numerical Aperture", eq: "NA = √(n₁² - n₂²)", desc: "Light-gathering ability of an optical fiber." },
+    { name: "V-Number", eq: "V = (2πa/λ) · NA", desc: "Determines the number of modes in a step-index fiber." },
+    { name: "Attenuation", eq: "α = (10/L) · log₁₀(P_in / P_out)", desc: "Signal loss over distance in dB/km." }
+  ];
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div 
+        className={`fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-[150] transition-opacity duration-500 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} 
+        onClick={onClose}
+      />
+      {/* Sidebar */}
+      <div className={`fixed top-0 right-0 h-full w-full max-w-md glass-panel !rounded-none !border-r-0 !border-t-0 !border-b-0 z-[160] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="p-8 flex items-center justify-between border-b border-white/20">
+           <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
+             <Calculator className="w-6 h-6 text-purple-500" />
+             Equation Bank
+           </h2>
+           <button onClick={onClose} className="p-2 bg-white/30 hover:bg-white/50 rounded-full transition-colors text-slate-700">
+             <X className="w-5 h-5" />
+           </button>
+        </div>
+        <div className="p-8 overflow-y-auto custom-scrollbar space-y-6 flex-1">
+          <div className="relative mb-8">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Search equations..." 
+              className="w-full bg-white/40 border border-white/50 rounded-2xl py-3 pl-12 pr-4 text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:bg-white/60 transition-all shadow-inner"
+            />
+          </div>
+          {equations.map((item, i) => (
+            <div key={i} className="glass-panel p-5 rounded-2xl hover:bg-white/40 transition-colors border-white/30 group">
+               <h4 className="font-bold text-slate-800 mb-2 group-hover:text-purple-600 transition-colors">{item.name}</h4>
+               <div className="py-3 px-4 bg-white/50 rounded-xl font-mono text-center text-blue-700 font-bold mb-3 shadow-inner border border-white/40">
+                 {item.eq}
+               </div>
+               <p className="text-sm text-slate-600 font-medium leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+};
+
+// --- MAIN APP COMPONENT ---
 
 export default function App() {
   const [activeModule, setActiveModule] = useState(null);
@@ -22,6 +245,14 @@ export default function App() {
 
   const scrollRef = useRef(null);
 
+  useEffect(() => {
+    // Inject styles
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = liquidStyles;
+    document.head.appendChild(styleSheet);
+    return () => styleSheet.remove();
+  }, []);
+
   const openModule = (id) => {
     setActiveModule(id);
     setIsHome(false);
@@ -29,39 +260,42 @@ export default function App() {
 
   const closeModule = () => {
     setIsHome(true);
-    setTimeout(() => setActiveModule(null), 500); 
+    setTimeout(() => setActiveModule(null), 700); // Matches transition duration
   };
 
   const scrollToModules = () => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActiveTab('Modules');
   };
 
   const modules = [
-    { id: '1', title: 'Module 01', subtitle: 'Fundamentals', icon: <Play className="w-6 h-6"/>, color: 'from-blue-500 to-indigo-600', desc: 'Total Internal Reflection & Ray Theory.' },
-    { id: '2', title: 'Module 02', subtitle: 'Signal Physics', icon: <Activity className="w-6 h-6"/>, color: 'from-indigo-500 to-purple-600', desc: 'Attenuation, Dispersion & Mode Analysis.' },
-    { id: '3', title: 'Module 03', subtitle: 'Active Systems', icon: <Zap className="w-6 h-6"/>, color: 'from-purple-500 to-rose-600', desc: 'Laser Diodes, EDFAs & SOA Physics.' },
-    { id: '4', title: 'Module 04', subtitle: 'Sensors & Systems', icon: <GitBranch className="w-6 h-6"/>, color: 'from-emerald-500 to-teal-600', desc: 'FBG, Sagnac Gyro & Distributed Sensing.' }
+    { id: '1', title: 'Module 01', subtitle: 'Fundamentals', icon: <Play className="w-7 h-7"/>, color: 'text-blue-500', bgGlow: 'from-blue-400/20 to-indigo-400/20', desc: 'Total Internal Reflection & Ray Theory.' },
+    { id: '2', title: 'Module 02', subtitle: 'Signal Physics', icon: <Activity className="w-7 h-7"/>, color: 'text-purple-500', bgGlow: 'from-purple-400/20 to-fuchsia-400/20', desc: 'Attenuation, Dispersion & Mode Analysis.' },
+    { id: '3', title: 'Module 03', subtitle: 'Active Systems', icon: <Zap className="w-7 h-7"/>, color: 'text-rose-500', bgGlow: 'from-rose-400/20 to-orange-400/20', desc: 'Laser Diodes, EDFAs & SOA Physics.' },
+    { id: '4', title: 'Module 04', subtitle: 'Sensors & Systems', icon: <GitBranch className="w-7 h-7"/>, color: 'text-emerald-500', bgGlow: 'from-emerald-400/20 to-teal-400/20', desc: 'FBG, Sagnac Gyro & Distributed Sensing.' }
   ];
 
   const navLinks = ['Introduction', 'Concepts', 'Modules', 'Resources'];
 
   return (
-    <div className="min-h-screen w-full bg-[#f8faff] text-slate-800 font-sans selection:bg-periwinkle/30 flex items-center justify-center p-4 lg:p-8">
-      <SynthaceBackground />
+    <div className="relative min-h-screen w-full font-sans selection:bg-blue-500/30 overflow-hidden flex items-center justify-center p-4 lg:p-8">
       
-      {/* MAIN CONTEXT CARD */}
-      <div className={`relative h-[90vh] w-full max-w-[1400px] glass-card rounded-[3rem] overflow-hidden flex flex-col transition-all duration-700 shadow-2xl ${!isHome ? 'scale-95 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}>
+      {/* GLOBAL LIQUID BACKGROUND */}
+      <LiquidBackground isDark={!isHome} />
+      
+      {/* MAIN LIGHT GLASS PORTAL (HOME) */}
+      <div className={`relative h-[90vh] w-full max-w-[1400px] glass-panel rounded-[3rem] overflow-hidden flex flex-col transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${!isHome ? 'scale-[0.97] opacity-0 pointer-events-none translate-y-8' : 'scale-100 opacity-100 translate-y-0'}`}>
         
         {/* HEADER */}
-        <header className="h-24 w-full flex items-center justify-between px-12 relative z-50">
-          <div className="flex items-center gap-3 group cursor-default translate-x-[-12px] scale-110">
-             <div className="w-12 h-12 rounded-2xl bg-periwinkle flex items-center justify-center shadow-[0_10px_20px_rgba(99,102,241,0.35)] group-hover:rotate-12 transition-transform duration-500">
-                <div className="w-5 h-5 bg-white rounded-lg rotate-45" />
+        <header className="h-24 w-full flex items-center justify-between px-8 lg:px-12 relative z-50 border-b border-white/20 bg-white/10 backdrop-blur-md">
+          <div className="flex items-center gap-4 group cursor-default">
+             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:rotate-12 group-hover:scale-105 transition-all duration-500 border border-white/20">
+                <div className="w-5 h-5 bg-white/90 rounded-lg rotate-45 backdrop-blur-sm" />
              </div>
-             <span className="font-black text-3xl tracking-tight text-slate-900 drop-shadow-sm">Nexus</span>
+             <span className="font-black text-2xl tracking-tight text-slate-800 drop-shadow-sm">Nexus</span>
           </div>
           
-          <nav className="hidden md:flex items-center gap-10">
+          <nav className="hidden md:flex items-center gap-2 glass-panel px-4 py-2 rounded-full border-white/30 bg-white/20">
             {navLinks.map((link) => (
                <button 
                 key={link}
@@ -69,25 +303,22 @@ export default function App() {
                   setActiveTab(link);
                   if(link === 'Modules') scrollToModules();
                 }}
-                className={`relative py-2 text-sm font-bold tracking-wide transition-all ${
-                  activeTab === link ? 'text-periwinkle' : 'text-slate-500 hover:text-slate-900'
+                className={`relative px-5 py-2 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
+                  activeTab === link ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
                 }`}
                >
                  {link}
-                 {activeTab === link && (
-                   <div className="absolute -bottom-1 left-0 right-0 h-[3px] bg-periwinkle rounded-full animate-in fade-in zoom-in duration-300" />
-                 )}
                </button>
             ))}
           </nav>
 
-          <button className="md:hidden p-3 glass-panel rounded-2xl">
+          <button className="md:hidden p-3 glass-panel rounded-2xl bg-white/30 border-white/40">
             <Menu className="w-6 h-6 text-slate-700" />
           </button>
         </header>
 
         {/* CONTENT SCROLL AREA */}
-        <main className="flex-1 overflow-y-auto custom-scrollbar px-6 lg:px-12 pb-24">
+        <main className="flex-1 overflow-y-auto custom-scrollbar relative z-10 px-6 lg:px-12 pb-24 scroll-smooth">
           
           <HeroSection 
             onExplore={scrollToModules} 
@@ -95,10 +326,10 @@ export default function App() {
           />
 
           {/* MODULE GRID SECTION */}
-          <section ref={scrollRef} className="mt-32 pt-12 space-y-12">
-            <div className="text-center lg:text-left space-y-4">
-               <h3 className="text-3xl font-black text-slate-900 tracking-tight">Technical Learning Modules</h3>
-               <p className="text-slate-500 font-medium max-w-xl">Comprehensive physics modules designed for graduate-level photonics research.</p>
+          <section ref={scrollRef} className="mt-20 pt-12 space-y-12 relative">
+            <div className="text-center lg:text-left space-y-4 px-4">
+               <h3 className="text-4xl font-black text-slate-800 tracking-tight">Learning Modules</h3>
+               <p className="text-slate-500 font-medium text-lg max-w-xl">Interactive physics simulations encapsulated in fluid interfaces.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -106,25 +337,26 @@ export default function App() {
                   <button 
                     key={mod.id}
                     onClick={() => openModule(mod.id)}
-                    className="group relative h-80 glass-panel overflow-hidden text-left border-white/50 hover:border-periwinkle/30 transition-all duration-700 animate-in fade-in slide-in-from-bottom-8"
-                    style={{ animationDelay: `${idx * 0.15}s` }}
+                    className="group relative h-[340px] glass-panel rounded-[2.5rem] overflow-hidden text-left border-white/40 hover:border-white transition-all duration-700 hover:shadow-[0_20px_40px_rgba(31,38,135,0.2)]"
                   >
-                     <div className={`absolute inset-0 bg-gradient-to-br ${mod.color} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700`} />
+                     {/* Liquid mesh inside card */}
+                     <div className={`absolute inset-0 bg-gradient-to-br ${mod.bgGlow} opacity-50 group-hover:opacity-100 transition-opacity duration-700 blur-2xl rounded-[2.5rem]`} />
+                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-1000"></div>
                      
-                     <div className="absolute inset-0 p-12 flex flex-col justify-between">
+                     <div className="absolute inset-0 p-10 flex flex-col justify-between z-10">
                         <div className="flex justify-between items-start">
-                           <div className={`p-5 rounded-3xl bg-gradient-to-br ${mod.color} text-white shadow-xl shadow-indigo-200/50 group-hover:scale-110 transition-transform`}>
+                           <div className={`p-5 rounded-3xl bg-white/50 border border-white/60 shadow-xl backdrop-blur-md group-hover:scale-110 transition-transform duration-500 ${mod.color}`}>
                               {mod.icon}
                            </div>
-                           <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em]">{mod.title}</span>
+                           <span className="text-[11px] font-black text-slate-400 bg-white/40 px-4 py-2 rounded-full uppercase tracking-[0.2em] border border-white/30 backdrop-blur-sm">{mod.title}</span>
                         </div>
                         
-                        <div className="space-y-3">
-                           <h3 className="text-3xl font-black text-slate-900 tracking-tight">{mod.subtitle}</h3>
-                           <p className="text-slate-500 font-medium text-sm max-w-xs leading-relaxed">{mod.desc}</p>
+                        <div className="space-y-3 relative">
+                           <h3 className="text-3xl font-black text-slate-800 tracking-tight group-hover:text-black transition-colors">{mod.subtitle}</h3>
+                           <p className="text-slate-600 font-medium text-base max-w-sm leading-relaxed">{mod.desc}</p>
                         </div>
 
-                        <div className="absolute bottom-12 right-12 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-500 text-periwinkle p-4 glass-card rounded-2xl shadow-lg border-white">
+                        <div className="absolute bottom-10 right-10 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-500 text-white p-4 bg-slate-900 rounded-2xl shadow-xl">
                            <ArrowRight className="w-6 h-6" />
                         </div>
                      </div>
@@ -134,13 +366,13 @@ export default function App() {
           </section>
 
           {/* Research archive */}
-          <section className="mt-40 mb-20">
-             <div className="flex items-center justify-between mb-12">
-               <h3 className="text-2xl font-black tracking-tight flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center border border-emerald-200">
+          <section className="mt-40 mb-20 relative">
+             <div className="flex items-center justify-between mb-12 px-4">
+               <h3 className="text-3xl font-black tracking-tight flex items-center gap-4 text-slate-800">
+                  <div className="w-12 h-12 rounded-[1.25rem] bg-emerald-500/20 backdrop-blur-md flex items-center justify-center border border-emerald-500/30">
                     <BookOpen className="w-6 h-6 text-emerald-600" />
                   </div>
-                  Research archive
+                  Research Archive
                </h3>
              </div>
              <ResourceGrid onOpenPDF={(resource) => setActivePdf(resource)} />
@@ -148,13 +380,12 @@ export default function App() {
         </main>
       </div>
 
-      {/* 
-          CLEAN MODULE OVERLAY — Stays dark/laboratory themed inside for focus
+      {/* DARK LIQUID MODULE OVERLAY
       */}
-      <div className={`absolute inset-0 z-[100] transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-        isHome ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+      <div className={`absolute inset-0 z-[100] transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        isHome ? 'translate-y-full opacity-0 pointer-events-none scale-105' : 'translate-y-0 opacity-100 scale-100'
       }`}>
-        <div className="h-full w-full bg-[#03040b] overflow-hidden relative">
+        <div className="h-full w-full relative">
            {activeModule === '1' && <Module1Basics onBack={closeModule} />}
            {activeModule === '2' && <Module2Modes onBack={closeModule} />}
            {activeModule === '3' && <Module3Active onBack={closeModule} />}
@@ -162,8 +393,10 @@ export default function App() {
         </div>
       </div>
 
+      {/* OVERLAYS */}
       <EquationBank isOpen={isEqBankOpen} onClose={() => setIsEqBankOpen(false)} />
       <PdfViewerModal resource={activePdf} onClose={() => setActivePdf(null)} />
+      
     </div>
   );
 }

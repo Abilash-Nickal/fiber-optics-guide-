@@ -5,8 +5,8 @@ import { InlineMath, BlockMath } from 'react-katex';
  * MathBlock — renders a LaTeX equation in a high-contrast white container.
  * Enforces BOLD BLACK fonts as requested for the Corporate Lab aesthetic.
  */
-export const MathBlock = ({ math, label, color = 'border-white/20' }) => (
-  <div className={`my-4 glass-card border-2 ${color} overflow-hidden transition-all duration-300 hover:bg-white/50`}>
+export const MathBlock = ({ math, label, color = 'border-white/20', className = '' }) => (
+  <div className={`my-4 glass-card border-2 ${color} ${className} overflow-hidden transition-all duration-300 hover:bg-white/50`}>
     <div className="px-8 py-6 flex items-center justify-center text-black active:scale-[0.98] transition-transform">
       <style>{`
         .katex { font-weight: 800 !important; color: #000 !important; opacity: 1 !important; } 
@@ -25,8 +25,8 @@ export const MathBlock = ({ math, label, color = 'border-white/20' }) => (
 /**
  * MathInline — high-contrast inline LaTeX with bold black styling.
  */
-export const MathInline = ({ math }) => (
-  <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-white/30 backdrop-blur-sm border border-white/20 text-black font-extrabold align-middle transition-all hover:bg-white/60">
+export const MathInline = ({ math, className = '' }) => (
+  <span className={`inline-block px-1.5 py-0.5 mx-0.5 rounded bg-white/30 backdrop-blur-sm border border-white/20 text-black font-extrabold align-middle transition-all hover:bg-white/60 ${className}`}>
     <style>{`.katex { font-weight: 800 !important; color: #000 !important; }`}</style>
     <InlineMath math={String(math)} />
   </span>
