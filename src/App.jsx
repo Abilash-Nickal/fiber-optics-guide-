@@ -62,46 +62,47 @@ const liquidStyles = `
 // --- COMPONENTS ---
 
 const LiquidBackground = ({ isDark }) => (
-  <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0 transition-colors duration-1000 ease-in-out" style={{ backgroundColor: isDark ? '#050814' : '#eef2ff' }}>
-    <div className={`absolute top-0 -left-4 w-96 h-96 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob transition-all duration-1000 ${isDark ? 'bg-indigo-900 mix-blend-screen opacity-40' : 'bg-blue-300'}`}></div>
-    <div className={`absolute top-0 -right-4 w-96 h-96 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-2000 transition-all duration-1000 ${isDark ? 'bg-purple-900 mix-blend-screen opacity-40' : 'bg-purple-300'}`}></div>
-    <div className={`absolute -bottom-8 left-20 w-96 h-96 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-4000 transition-all duration-1000 ${isDark ? 'bg-teal-900 mix-blend-screen opacity-30' : 'bg-pink-300'}`}></div>
-    {/* Extra liquid mesh for dark mode */}
+  <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0 transition-colors duration-1000 ease-in-out" style={{ backgroundColor: isDark ? '#020617' : '#f0f4ff' }}>
+    <div className={`absolute -top-[20%] -left-[10%] w-[80vw] h-[80vw] rounded-full mix-blend-multiply filter blur-[120px] opacity-60 animate-blob transition-all duration-1000 ${isDark ? 'bg-indigo-900/40 mix-blend-screen' : 'bg-periwinkle/30'}`}></div>
+    <div className={`absolute -top-[10%] -right-[20%] w-[70vw] h-[70vw] rounded-full mix-blend-multiply filter blur-[140px] opacity-60 animate-blob animation-delay-2000 transition-all duration-1000 ${isDark ? 'bg-deep-purple/30 mix-blend-screen' : 'bg-purple-300/40'}`}></div>
+    <div className={`absolute -bottom-[20%] left-[10%] w-[75vw] h-[75vw] rounded-full mix-blend-multiply filter blur-[130px] opacity-50 animate-blob animation-delay-4000 transition-all duration-1000 ${isDark ? 'bg-teal-900/30 mix-blend-screen' : 'bg-teal-glow/20'}`}></div>
+    {/* Dynamic Mesh Overlays */}
+    <div className="absolute inset-0 liquid-mesh opacity-20"></div>
     {isDark && (
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600 rounded-full mix-blend-screen filter blur-[150px] opacity-20 animate-blob"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[100vw] h-[100vw] bg-blue-600/10 rounded-full mix-blend-screen filter blur-[180px] animate-blob"></div>
     )}
   </div>
 );
 
 const HeroSection = ({ onExplore, onOpenEqBank }) => (
-  <div className="relative pt-24 pb-16 flex flex-col items-center text-center z-10 font-sans">
-    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel mb-8 animate-fade-in-up">
-      <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
-      <span className="text-sm font-semibold text-slate-700 tracking-wide">Nexus Engine v2.4 Liquid</span>
+  <div className="relative pt-32 pb-20 flex flex-col items-center text-center z-10 px-4">
+    <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full advanced-glass mb-10 animate-fade-in-up border-white/60">
+      <div className="flex h-2.5 w-2.5 rounded-full bg-teal-glow animate-pulse shadow-[0_0_10px_#2dd4bf]"></div>
+      <span className="text-xs font-black text-slate-800 uppercase tracking-[0.2em]">Nexus Engine <span className="text-periwinkle">v4.0 Liquid</span></span>
     </div>
-    <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter mb-6 leading-tight">
+    <h1 className="text-7xl md:text-9xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.85] drop-shadow-sm">
       Photonics <br/>
-      <span className="liquid-text font-black">Reimagined.</span>
+      <span className="bg-gradient-to-r from-blue-600 via-deep-purple to-teal-glow bg-clip-text text-transparent animate-gradient-x font-black">Reimagined.</span>
     </h1>
-    <p className="text-lg text-slate-600 max-w-2xl font-medium mb-10 leading-relaxed px-4">
-      Dive into a fluid, interactive learning environment. Explore the depths of total internal reflection, signal physics, and active optical systems through liquid glass interfaces.
+    <p className="text-xl text-slate-500 max-w-2xl font-semibold mb-12 leading-relaxed opacity-80 italic">
+      "Where fluid physics meets glassmorphic architecture. Explore the future of light through a tactile, deeply layered interface."
     </p>
-    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4">
+    <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto px-4 scale-110">
       <button 
         onClick={onExplore}
-        className="group relative px-8 py-4 bg-slate-900 text-white rounded-3xl font-bold tracking-wide overflow-hidden shadow-[0_10px_40px_-10px_rgba(15,23,42,0.5)] transition-transform hover:scale-105 active:scale-95"
+        className="group relative px-10 py-5 bg-slate-950 text-white rounded-[2rem] font-black tracking-[0.1em] overflow-hidden shadow-[0_20px_50px_-10px_rgba(15,23,42,0.5)] transition-all hover:scale-105 active:scale-95 uppercase text-xs"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <span className="relative flex items-center gap-2">
-          Explore Modules <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-600 to-teal-400 opacity-20 group-hover:opacity-100 transition-opacity duration-1000"></div>
+        <span className="relative flex items-center justify-center gap-3">
+          Explore Pipeline <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
         </span>
       </button>
       <button 
         onClick={onOpenEqBank}
-        className="group px-8 py-4 glass-panel text-slate-800 rounded-3xl font-bold tracking-wide hover:bg-white/40 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+        className="group px-10 py-5 advanced-glass text-slate-800 rounded-[2rem] font-black tracking-[0.1em] hover:bg-white/40 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3 uppercase text-xs border-white/60"
       >
-        <Calculator className="w-5 h-5 text-purple-500" />
-        Equation Bank
+        <Calculator className="w-5 h-5 text-deep-purple" />
+        Laboratory Calc
       </button>
     </div>
   </div>
@@ -283,16 +284,16 @@ export default function App() {
       {/* GLOBAL LIQUID BACKGROUND */}
       <LiquidBackground isDark={!isHome} />
       
-      {/* MAIN LIGHT GLASS PORTAL (HOME) */}
-      <div className={`relative h-[90vh] w-full max-w-[1400px] glass-panel rounded-[3rem] overflow-hidden flex flex-col transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${!isHome ? 'scale-[0.97] opacity-0 pointer-events-none translate-y-8' : 'scale-100 opacity-100 translate-y-0'}`}>
+      {/* MAIN ADVANCED GLASS PORTAL */}
+      <div className={`relative min-h-[90vh] w-full max-w-[1400px] advanced-glass rounded-[4rem] overflow-hidden flex flex-col transition-all duration-[1000ms] ease-[cubic-bezier(0.23,1,0.32,1)] border-white/60 ${!isHome ? 'scale-[0.98] opacity-0 pointer-events-none translate-y-16' : 'scale-100 opacity-100 translate-y-0'}`}>
         
-        {/* HEADER */}
-        <header className="h-24 w-full flex items-center justify-between px-8 lg:px-12 relative z-50 border-b border-white/20 bg-white/10 backdrop-blur-md">
-          <div className="flex items-center gap-4 group cursor-default">
-             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:rotate-12 group-hover:scale-105 transition-all duration-500 border border-white/20">
-                <div className="w-5 h-5 bg-white/90 rounded-lg rotate-45 backdrop-blur-sm" />
+        {/* REFINED HEADER */}
+        <header className="h-28 w-full flex items-center justify-between px-10 lg:px-16 relative z-50 border-b border-white/30 bg-white/10 backdrop-blur-3xl">
+          <div className="flex items-center gap-5 group cursor-default">
+             <div className="w-14 h-14 rounded-[1.5rem] bg-gradient-to-br from-blue-500 via-deep-purple to-teal-glow flex items-center justify-center shadow-2xl shadow-indigo-500/40 group-hover:rotate-[15deg] group-hover:scale-110 transition-all duration-700 border border-white/40">
+                <div className="w-6 h-6 bg-white/95 rounded-xl rotate-45 backdrop-blur-sm shadow-inner" />
              </div>
-             <span className="font-black text-2xl tracking-tight text-slate-800 drop-shadow-sm">Nexus</span>
+             <span className="font-black text-3xl tracking-tighter text-slate-900 group-hover:text-periwinkle transition-colors">NEXUS<span className="text-teal-500 opacity-40">_</span>CORE</span>
           </div>
           
           <nav className="hidden md:flex items-center gap-2 glass-panel px-4 py-2 rounded-full border-white/30 bg-white/20">
@@ -325,39 +326,47 @@ export default function App() {
             onOpenEqBank={() => setIsEqBankOpen(true)}
           />
 
-          {/* MODULE GRID SECTION */}
-          <section ref={scrollRef} className="mt-20 pt-12 space-y-12 relative">
-            <div className="text-center lg:text-left space-y-4 px-4">
-               <h3 className="text-4xl font-black text-slate-800 tracking-tight">Learning Modules</h3>
-               <p className="text-slate-500 font-medium text-lg max-w-xl">Interactive physics simulations encapsulated in fluid interfaces.</p>
+          {/* ADVANCED MODULE GRID */}
+          <section ref={scrollRef} className="mt-32 pt-20 space-y-16 relative">
+            <div className="text-center lg:text-left space-y-4 px-4 px-10">
+               <div className="inline-block px-4 py-1 rounded-full bg-periwinkle/10 border border-periwinkle/20 text-[10px] font-black uppercase tracking-[0.3em] text-periwinkle mb-2">Simulation Pipeline</div>
+               <h3 className="text-5xl font-black text-slate-900 tracking-tighter">Physics <span className="italic text-periwinkle">Modules</span></h3>
+               <p className="text-slate-500 font-bold text-xl max-w-xl italic">"Interactive sensory lab encapsulated in fluid glass."</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 px-10">
                {modules.map((mod, idx) => (
                   <button 
                     key={mod.id}
                     onClick={() => openModule(mod.id)}
-                    className="group relative h-[340px] glass-panel rounded-[2.5rem] overflow-hidden text-left border-white/40 hover:border-white transition-all duration-700 hover:shadow-[0_20px_40px_rgba(31,38,135,0.2)]"
+                    className={`group relative h-[420px] advanced-glass rounded-[4rem] overflow-hidden text-left border-white/60 transition-all duration-[800ms] hover:-translate-y-4 ${
+                        idx === 0 ? 'ambient-glow-blue' : idx === 1 ? 'ambient-glow-purple' : idx === 2 ? 'ambient-glow-purple' : 'ambient-glow-teal'
+                    }`}
                   >
-                     {/* Liquid mesh inside card */}
-                     <div className={`absolute inset-0 bg-gradient-to-br ${mod.bgGlow} opacity-50 group-hover:opacity-100 transition-opacity duration-700 blur-2xl rounded-[2.5rem]`} />
-                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-1000"></div>
+                     {/* Internal Fluid Mesh */}
+                     <div className={`absolute inset-0 bg-gradient-to-br ${mod.bgGlow} opacity-30 group-hover:opacity-60 transition-opacity duration-1000 blur-3xl`} />
+                     <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-[2000ms]"></div>
                      
-                     <div className="absolute inset-0 p-10 flex flex-col justify-between z-10">
+                     <div className="absolute inset-0 p-16 flex flex-col justify-between z-10">
                         <div className="flex justify-between items-start">
-                           <div className={`p-5 rounded-3xl bg-white/50 border border-white/60 shadow-xl backdrop-blur-md group-hover:scale-110 transition-transform duration-500 ${mod.color}`}>
-                              {mod.icon}
+                           <div className={`w-20 h-20 frosted-container flex items-center justify-center shadow-2xl group-hover:scale-110 transition-all duration-700 group-hover:rotate-[10deg] ${mod.color}`}>
+                              {React.cloneElement(mod.icon, { className: 'w-10 h-10' })}
                            </div>
-                           <span className="text-[11px] font-black text-slate-400 bg-white/40 px-4 py-2 rounded-full uppercase tracking-[0.2em] border border-white/30 backdrop-blur-sm">{mod.title}</span>
+                           <div className="flex flex-col items-end">
+                                <span className="text-[10px] font-black text-slate-400 bg-white/30 px-5 py-2 rounded-full uppercase tracking-[0.3em] border border-white/40 mb-2 backdrop-blur-md">{mod.title}</span>
+                                <div className="flex gap-1">
+                                    {[1,2,3].map(d => <div key={d} className={`w-1 h-1 rounded-full ${mod.color.replace('text-', 'bg-')} opacity-30`} />)}
+                                </div>
+                           </div>
                         </div>
                         
-                        <div className="space-y-3 relative">
-                           <h3 className="text-3xl font-black text-slate-800 tracking-tight group-hover:text-black transition-colors">{mod.subtitle}</h3>
-                           <p className="text-slate-600 font-medium text-base max-w-sm leading-relaxed">{mod.desc}</p>
+                        <div className="space-y-4 relative">
+                           <h3 className="text-4xl font-black text-slate-800 tracking-tighter group-hover:text-periwinkle transition-colors leading-[0.9]">{mod.subtitle}</h3>
+                           <p className="text-slate-600 font-bold text-lg max-w-[280px] leading-snug italic opacity-80">{mod.desc}</p>
                         </div>
 
-                        <div className="absolute bottom-10 right-10 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-500 text-white p-4 bg-slate-900 rounded-2xl shadow-xl">
-                           <ArrowRight className="w-6 h-6" />
+                        <div className="absolute bottom-16 right-16 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700 p-5 rounded-[2rem] bg-slate-950 text-white shadow-2xl border border-white/20">
+                           <ArrowRight className="w-8 h-8" />
                         </div>
                      </div>
                   </button>
